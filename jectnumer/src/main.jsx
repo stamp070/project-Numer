@@ -1,10 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
+import Bi from './root/bisection.jsx'
+import Nav from './component/nav.jsx'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <Nav />
+    <Bi />
   </StrictMode>,
 )
