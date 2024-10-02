@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import viteLogo from '/vite.svg'
-import '../App.css'
-import Dropdown from '../component/dropdown'
+import '../../App.css'
 
 import { Button, Container, Form, Table } from "react-bootstrap";
-import { evaluate } from 'mathjs'
+import { evaluate } from 'mathjs';
 import Plot from 'react-plotly.js'
 
-const Sample =()=>{
+
+const graphical=()=> {
     const [data, setData] = useState([]);
     const [valueIter, setValueIter] = useState([]);
     const [valueXl, setValueXl] = useState([]);
@@ -27,7 +26,7 @@ const Sample =()=>{
         setValueXm(data.map((x)=>x.Xm));
         setValueXr(data.map((x)=>x.Xr));
         return(
-            <Container className='mr-3'>
+            <Container className='mr-5'>
                 <Table striped bordered hover variant="dark">
                     <thead>
                         <tr>
@@ -55,30 +54,13 @@ const Sample =()=>{
     }
 
     const error =(xold, xnew)=> Math.abs((xnew-xold)/xnew)*100;
-   
-    const Calbisection = (xl, xr) => {
+    const Calgraphical = (xl, xr ,err) => {
         let xm, fXm, fXr, ea;
         let iter = 0;
         const MAX = 50;
         const e = 0.00001;
-        const newData = []; // Local array to store results
+        const newData = []; 
 
-        do {
-            xm = (xl + xr) / 2.0;
-            fXr = evaluate(Equation, { x: xr });
-            fXm = evaluate(Equation, { x: xm });
-
-            iter++;
-            if (fXm * fXr > 0) {
-                ea = error(xr, xm);
-                newData.push({ iteration: iter, Xl: xl, Xm: xm, Xr: xr, y:fXm });
-                xr = xm;
-            } else {
-                ea = error(xl, xm);
-                newData.push({ iteration: iter, Xl: xl, Xm: xm, Xr: xr, y:fXm });
-                xl = xm;
-            }
-        } while (ea > e && iter < MAX);
         
         setData(newData);
         setX(xm);
@@ -95,11 +77,10 @@ const Sample =()=>{
     const inputXR = (event) =>{
         setXR(event.target.value)
     }
-
     const calculateRoot = () =>{
         const xlnum = parseFloat(XL)
         const xrnum = parseFloat(XR)
-        Calbisection(xlnum,xrnum);
+        Calgraphical(xlnum,xrnum);
         
         setHtml(print());   
     }
@@ -112,10 +93,8 @@ const Sample =()=>{
         marker : {'color' : 'red'},
         line : {'color' : '#7695FF'}
     };
-
-    return (
-            <Container>
-                <Dropdown/>
+    return(
+        <Container>
                 <Form >
                     <Form.Group className="mb-3">
                         <Form.Label>Input f(x)</Form.Label>
@@ -139,10 +118,9 @@ const Sample =()=>{
                 style={{ width: "100%", height: "400px" }}
             />
             <div class="flex justify-center">
-                {html}
+                {print}
             </div>
             </Container>
     );
 };
-
-export default Sample
+export default graphical;
