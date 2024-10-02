@@ -9,7 +9,7 @@ import Plot from 'react-plotly.js'
 const falseposition=()=> {
     const [data, setData] = useState([]);
     const [html, setHtml] = useState(null);
-    const [Equation,setEquation] = useState("(x^4)-13")
+    const [Equation,setEquation] = useState("(x^2)-13")
     const [X,setX] = useState(0)
     const [XL,setXL] = useState(0)
     const [XR,setXR] = useState(0)
@@ -125,7 +125,7 @@ const falseposition=()=> {
             </Container>
             <Plot
                 data={[plotData]}
-                layout={{ title: 'Bisection Method Results'}}
+                layout={{ title: 'False-position Methods'}}
                 style={{ width: "100%", height: "400px" }}
             />
             <div class="flex justify-center">

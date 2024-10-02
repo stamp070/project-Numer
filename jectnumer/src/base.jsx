@@ -50,7 +50,6 @@ function base() {
   const [ subtopic, setSubtopic ] = useState("Bisection Search");
   const [ topicOpen, setTopicOpen ] = useState(false);
   const [ subTopicOpen, setSubtopicOpen ] = useState(false);
-  console.log("awdfs");
   return (
     <>
     <Nav/>

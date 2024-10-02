@@ -13,7 +13,7 @@ const graphical=()=> {
     const [valueXm, setValueXm] = useState([]);
     const [valueXr, setValueXr] = useState([]);
     const [html, setHtml] = useState(null);
-    const [Equation,setEquation] = useState("(x^4)-13")
+    const [Equation,setEquation] = useState("(x^2)-13")
     const [X,setX] = useState(0)
     const [XL,setXL] = useState(0)
     const [XR,setXR] = useState(0)
@@ -114,7 +114,7 @@ const graphical=()=> {
             </Container>
             <Plot
                 data={[plotData]}
-                layout={{ title: 'Bisection Method Results'}}
+                layout={{ title: 'Graphical Methods'}}
                 style={{ width: "100%", height: "400px" }}
             />
             <div class="flex justify-center">

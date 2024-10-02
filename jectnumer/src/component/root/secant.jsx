@@ -9,7 +9,7 @@ import Plot from 'react-plotly.js'
 const secant=()=> {
     const [data, setData] = useState([]);
     const [html, setHtml] = useState(null);
-    const [Equation,setEquation] = useState("1/2*(7/x+x)");
+    const [Equation,setEquation] = useState("(x^3)-13");
     const [X0,setX0] = useState(0);
     const [X1,setX1] = useState(0);
     const [Xans,setXans] = useState(0);
@@ -31,7 +31,7 @@ const secant=()=> {
                             return  (
                             <tr key={index}>
                                 <td>{element.iteration}</td>
-                                <td>{element.y.toPrecision(6)}</td>
+                                <td>{element.x.toPrecision(6)}</td>
                             </tr>)
                         })}
                     </tbody>
@@ -40,23 +40,23 @@ const secant=()=> {
            
         );
     }
-    const calculatefunc =(x1,x0)=>{
-        const fx1 = evaluate(Equation, { x : x1 });
-        const fx0 = evaluate(Equation, { x : x0 });
-
+    const calculatefunc =(x0,x1)=>{
+        let fx1 = evaluate(Equation, { x : x1 });
+        let fx0 = evaluate(Equation, { x : x0 });
+        
         return x1 - (fx1 * (x1-x0)) / (fx1 - fx0);
     }
 
     const error =(xold, xnew)=> Math.abs((xnew-xold)/xnew)*100;
     const Calsecant = (x0,x1 ,err) => {
-        console.log(data)
+        console.log(`x1: ${x1}, x0: ${x0}, Equation: ${Equation}`);
         let ea;
         let iter = 0;
-        const MAX = 100;
+        const MAX = 1000;
         const e = 0.00001;
         const newData = []; 
 
-        const x = calculatefunc(x1,x0);
+        let x = calculatefunc(x1,x0);
         
         do{
             iter++;
@@ -88,8 +88,9 @@ const secant=()=> {
     }
 
     const calculateRoot = () =>{
-        const x = parseFloat(X0,X1)
-        Calsecant(x);
+        const x0 = parseFloat(X0)
+        const x1 = parseFloat(X1)
+        Calsecant(x0,x1);
         initialFunc();
         
         setHtml(print());   
@@ -97,9 +98,9 @@ const secant=()=> {
 
     const initialFunc = () => {
         let data = [];
-        const end = parseFloat(X) + 10; 
+        const end = parseFloat(X0) + 10; 
     
-        for (let i = parseFloat(X); i <= end; i += 0.01) {
+        for (let i = parseFloat(X0); i <= end; i += 0.01) {
             data.push({ x: i, y: evaluate(Equation, { x: i }) });
         }
         
@@ -111,7 +112,7 @@ const secant=()=> {
         y: data.map(item => item.y),
         type: 'scatter',
         mode: 'lines+markers',
-        name: 'One-Point',
+        name: 'Secant',
         marker : {'color' : 'red'},
         line : {'color' : '#7695FF'}
     };
@@ -146,7 +147,7 @@ const secant=()=> {
             </Container>
             <Plot
                 data={[plotOnePoint,plotFx]}
-                layout={{ title: 'One-point Iteration Methods'}}
+                layout={{ title: 'Secant Methods'}}
                 style={{ width: "100%", height: "400px" }}
             />
             <div class="flex justify-center">

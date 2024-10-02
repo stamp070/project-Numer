@@ -9,7 +9,7 @@ import Plot from 'react-plotly.js'
 const newton=()=> {
     const [data, setData] = useState([]);
     const [html, setHtml] = useState(null);
-    const [Equation,setEquation] = useState("x^2-7")
+    const [Equation,setEquation] = useState("(x^3)-22")
     const [X,setX] = useState(0)
     const [Xans,setXans] = useState(0)
 
