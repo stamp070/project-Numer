@@ -2,38 +2,28 @@ import { useState } from 'react'
 import '../../App.css'
 
 import { Button, Container, Form, Table } from "react-bootstrap";
-import { evaluate } from 'mathjs';
+import { evaluate,floor,log10,abs } from 'mathjs';
 import Plot from 'react-plotly.js'
 
 
 const graphical=()=> {
     const [data, setData] = useState([]);
-    const [valueIter, setValueIter] = useState([]);
-    const [valueXl, setValueXl] = useState([]);
-    const [valueXm, setValueXm] = useState([]);
-    const [valueXr, setValueXr] = useState([]);
     const [html, setHtml] = useState(null);
     const [Equation,setEquation] = useState("(x^2)-13")
     const [X,setX] = useState(0)
-    const [XL,setXL] = useState(0)
-    const [XR,setXR] = useState(0)
+    const [XStart,setXStart] = useState(0)
+    const [XEnd,setXEnd] = useState(0)
     const [Y,setY] = useState(0)
 
     const print = () =>{
-        console.log(data)
-        setValueIter(data.map((x)=>x.iteration));
-        setValueXl(data.map((x)=>x.Xl));
-        setValueXm(data.map((x)=>x.Xm));
-        setValueXr(data.map((x)=>x.Xr));
         return(
             <Container className='mr-5'>
                 <Table striped bordered hover variant="dark">
                     <thead>
                         <tr>
                             <th width="10%">Iteration</th>
-                            <th width="30%">XL</th>
-                            <th width="30%">XM</th>
-                            <th width="30%">XR</th>
+                            <th width="30%">X</th>
+                            <th width="30%">Y</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,9 +31,8 @@ const graphical=()=> {
                             return  (
                             <tr key={index}>
                                 <td>{element.iteration}</td>
-                                <td>{element.Xl}</td>
-                                <td>{element.Xm}</td>
-                                <td>{element.Xr}</td>
+                                <td>{element.x.toPrecision(7)}</td>
+                                <td>{element.y.toPrecision(7)}</td>
                             </tr>)
                         })}
                     </tbody>
@@ -52,40 +41,71 @@ const graphical=()=> {
            
         );
     }
+    const checkDigitPlace =(num)=>{
+        if (num === 0) return 1; 
+        const digitPlace = floor(log10(abs(num))) + 1; 
+        return Math.pow(10, digitPlace-1);
+    }
 
-    const error =(xold, xnew)=> Math.abs((xnew-xold)/xnew)*100;
-    const Calgraphical = (xl, xr ,err) => {
-        let xm, fXm, fXr, ea;
+    const Calgraphical = (xStart, xEnd ,err) => {
+        let fx,mid;
         let iter = 0;
-        const MAX = 50;
-        const e = 0.00001;
+        let step = checkDigitPlace(xStart-xEnd);
+        const MAX = 100;
+        const e = 0.000001;
         const newData = []; 
 
+        let x = step,y=step*10;
+        do{
+            iter++;
+            console.log("step: "+step);
+            console.log(x+" "+y)
+            for(let i=x;i<y;i+=step){
+
+                fx = evaluate(Equation,{ x:i });
+                let next = evaluate(Equation,{ x:i+step })
+                console.log(fx +"  "+ next)
+
+                if(fx * evaluate(Equation,{x:i+step})<0){
+                    console.log("----")
+                    x = i;
+                    y = i+step;
+                    break;
+                }
+            }
+            mid = (x+y)/2;
+            step/=10;
+
+            newData.push({ iteration: iter, x:mid, y: evaluate(Equation, { x: mid }) });
+
+            
+
+        }while(e < step && iter < MAX)
         
         setData(newData);
-        setX(xm);
+        setX(mid);
     };
 
     const inputEquation = (event) =>{
         setEquation(event.target.value)
     }
 
-    const inputXL = (event) =>{
-        setXL(event.target.value)
+    const inputXStart = (event) =>{
+        setXStart(event.target.value)
     }
 
-    const inputXR = (event) =>{
-        setXR(event.target.value)
+    const inputXEnd = (event) =>{
+        setXEnd(event.target.value)
     }
     const calculateRoot = () =>{
-        const xlnum = parseFloat(XL)
-        const xrnum = parseFloat(XR)
-        Calgraphical(xlnum,xrnum);
+        const xstart = parseFloat(XStart)
+        const xend = parseFloat(XEnd)
+        Calgraphical(xstart,xend);
         
         setHtml(print());   
     }
     const plotData = {
-        x: data.map(item => item.Xm),
+        x: data.map(item => item.x),
         y: data.map(item => item.y),
         type: 'scatter',
         mode: 'lines+markers',
@@ -99,10 +119,10 @@ const graphical=()=> {
                     <Form.Group className="mb-3">
                         <Form.Label>Input f(x)</Form.Label>
                             <input type="text" id="equation" value={Equation} onChange={inputEquation} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
-                            <Form.Label>Input XL</Form.Label>
-                            <input type="number" id="XL" onChange={inputXL} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
-                            <Form.Label>Input XR</Form.Label>
-                            <input type="number" id="XR" onChange={inputXR} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
+                            <Form.Label>Input XStart</Form.Label>
+                            <input type="number" id="XL" onChange={inputXStart} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
+                            <Form.Label>Input XEnd</Form.Label>
+                            <input type="number" id="XR" onChange={inputXEnd} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
                         </Form.Group>
                     <Button variant="dark" onClick={calculateRoot}>
                         Calculate
@@ -118,7 +138,7 @@ const graphical=()=> {
                 style={{ width: "100%", height: "400px" }}
             />
             <div class="flex justify-center">
-                {print}
+                {html}
             </div>
             </Container>
     );

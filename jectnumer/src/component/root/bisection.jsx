@@ -58,7 +58,7 @@ const Sample =()=>{
     const Calbisection = (xl, xr) => {
         let xm, fXm, fXr, ea;
         let iter = 0;
-        const MAX = 50;
+        const MAX = 100;
         const e = 0.00001;
         const newData = []; 
 

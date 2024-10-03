@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 import Bisection from './component/root/bisection.jsx'
-// import Graphical from './component/root/graphical.jsx'
+import Graphical from './component/root/graphical.jsx'
 import Falsepo from './component/root/falseposition.jsx'
 import One from './component/root/onepoint.jsx'
 import Newton from './component/root/newton.jsx'
@@ -10,7 +10,7 @@ import Nav from './nav.jsx'
 
 const Topics = {
   "Root of Equation": {
-    "Graphical Methods": <null/>,
+    "Graphical Methods": <Graphical/>,
     "Bisection Search": <Bisection/>,
     "False-position Methods": <Falsepo/>,
     "One-point Iteration Methods": <One/>,
@@ -47,7 +47,7 @@ const Topics = {
 
 function base() {
   const [ topic, setTopic ] = useState("Root of Equation");
-  const [ subtopic, setSubtopic ] = useState("Bisection Search");
+  const [ subtopic, setSubtopic ] = useState("Graphical Methods");
   const [ topicOpen, setTopicOpen ] = useState(false);
   const [ subTopicOpen, setSubtopicOpen ] = useState(false);
   return (
