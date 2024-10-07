@@ -125,8 +125,9 @@ const falseposition=()=> {
             </Container>
             <Plot
                 data={[plotData]}
-                layout={{ title: 'False-position Methods'}}
+                layout={{ title: 'False-position Methods',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
+                config={{scrollZoom: true}}
             />
             <div class="flex justify-center">
                 {html}

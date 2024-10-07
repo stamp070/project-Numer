@@ -109,7 +109,7 @@ const Sample =()=>{
         mode: 'lines+markers',
         name: 'Xl',
         marker : {'color' : 'red'},
-        line : {'color' : '#7695FF'}
+        line : {'color' : '#7695FF'},
     };
 
     return (
@@ -133,8 +133,10 @@ const Sample =()=>{
             </Container>
             <Plot
                 data={[plotData]}
-                layout={{ title: 'Bisection Method Results'}}
+                layout={{ title: 'Bisection Method Results',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
+                config={{scrollZoom: true}}
+
             />
             <div class="flex justify-center">
                 {html}

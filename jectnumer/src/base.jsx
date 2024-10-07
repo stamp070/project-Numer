@@ -6,6 +6,8 @@ import Falsepo from './component/root/falseposition.jsx'
 import One from './component/root/onepoint.jsx'
 import Newton from './component/root/newton.jsx'
 import Secant from './component/root/secant.jsx'
+import Cramers from './component/linear/cramer.jsx'
+
 import Nav from './nav.jsx'
 
 const Topics = {
@@ -18,6 +20,7 @@ const Topics = {
     "Secant Methods": <Secant/>
   },
   "Linear Algebra Equation": {
+    "Cramer's Rule" : <Cramers/>,
     "Guass Elimination": null,
     "Guass Jordan Elimination": null,
     "Matrix Inversion": null,

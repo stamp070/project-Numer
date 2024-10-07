@@ -4,7 +4,6 @@ import Base from './base.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    
     <Base />
   </StrictMode>,
 )

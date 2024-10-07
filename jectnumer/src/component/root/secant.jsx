@@ -147,8 +147,9 @@ const secant=()=> {
             </Container>
             <Plot
                 data={[plotOnePoint,plotFx]}
-                layout={{ title: 'Secant Methods'}}
+                layout={{ title: 'Secant Methods',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
+                config={{scrollZoom: true}}
             />
             <div class="flex justify-center">
                 {html}

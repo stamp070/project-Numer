@@ -130,8 +130,9 @@ const newton=()=> {
             </Container>
             <Plot
                 data={[plotNewton,plotFx]}
-                layout={{ title: 'Newton-Raphson Methods'}}
+                layout={{ title: 'Newton-Raphson Methods',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
+                config={{scrollZoom: true}}
             />
             <div class="flex justify-center">
                 {html}
