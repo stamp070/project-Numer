@@ -3,7 +3,7 @@ import '../../App.css'
 
 import { Button, Container, Form, Table } from "react-bootstrap";
 import { evaluate,floor,log10,abs } from 'mathjs';
-import Plot from 'react-plotly.js'
+import Plot from "react-plotly.js"
 
 
 const graphical=()=> {
@@ -13,7 +13,6 @@ const graphical=()=> {
     const [X,setX] = useState(0)
     const [XStart,setXStart] = useState(0)
     const [XEnd,setXEnd] = useState(0)
-    const [Y,setY] = useState(0)
 
     const print = () =>{
         return(
@@ -43,8 +42,9 @@ const graphical=()=> {
     }
     const checkDigitPlace =(num)=>{
         if (num === 0) return 1; 
-        const digitPlace = floor(log10(abs(num))) + 1; 
-        return Math.pow(10, digitPlace-1);
+        const digitPlace = floor(log10(abs(num))); 
+
+        return Math.pow(10, digitPlace);
     }
 
     const Calgraphical = (xStart, xEnd ,err) => {
@@ -55,11 +55,11 @@ const graphical=()=> {
         const e = 0.000001;
         const newData = []; 
 
-        let x = step,y=step*10;
+        let x = xStart,y=xEnd;
         do{
             iter++;
             console.log("step: "+step);
-            console.log(x+" "+y)
+            console.log("x: "+x+" y:"+y)
             for(let i=x;i<y;i+=step){
 
                 fx = evaluate(Equation,{ x:i });
@@ -77,9 +77,6 @@ const graphical=()=> {
             step/=10;
 
             newData.push({ iteration: iter, x:mid, y: evaluate(Equation, { x: mid }) });
-
-            
-
         }while(e < step && iter < MAX)
         
         setData(newData);
@@ -97,6 +94,7 @@ const graphical=()=> {
     const inputXEnd = (event) =>{
         setXEnd(event.target.value)
     }
+    
     const calculateRoot = () =>{
         const xstart = parseFloat(XStart)
         const xend = parseFloat(XEnd)
@@ -104,6 +102,7 @@ const graphical=()=> {
         
         setHtml(print());   
     }
+
     const plotData = {
         x: data.map(item => item.x),
         y: data.map(item => item.y),
@@ -113,6 +112,7 @@ const graphical=()=> {
         marker : {'color' : 'red'},
         line : {'color' : '#7695FF'}
     };
+
     return(
         <Container>
                 <Form >
@@ -137,6 +137,7 @@ const graphical=()=> {
                 layout={{ title: 'Graphical Methods',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
                 config={{scrollZoom: true}}
+                useResizeHandler={true}
             />
             <div class="flex justify-center">
                 {html}

@@ -7,32 +7,23 @@ import Plot from 'react-plotly.js'
 
 
 const Sample =()=>{
-    console.log('Sample component rendered');
     const [data, setData] = useState([]);
-    const [valueIter, setValueIter] = useState([]);
-    const [valueXl, setValueXl] = useState([]);
-    const [valueXm, setValueXm] = useState([]);
-    const [valueXr, setValueXr] = useState([]);
     const [html, setHtml] = useState(null);
     const [Equation,setEquation] = useState("(x^4)-13")
     const [X,setX] = useState(0)
-    const [XL,setXL] = useState(0)
-    const [XR,setXR] = useState(0)
+    const [XL,setXL] = useState(1)
+    const [XR,setXR] = useState(10)
 
     const print = () =>{
         console.log(data)
-        setValueIter(data.map((x)=>x.iteration));
-        setValueXl(data.map((x)=>x.Xl));
-        setValueXm(data.map((x)=>x.Xm));
-        setValueXr(data.map((x)=>x.Xr));
         return(
             <Container className='mr-5'>
                 <Table striped bordered hover variant="dark">
                     <thead>
                         <tr>
                             <th width="10%">Iteration</th>
-                            <th width="30%">X</th>
-                            <th width="30%">Y</th>
+                            <th width="30%">XL</th>
+                            <th width="30%">XM</th>
                             <th width="30%">XR</th>
                         </tr>
                     </thead>
@@ -107,7 +98,7 @@ const Sample =()=>{
         y: data.map(item => item.y),
         type: 'scatter',
         mode: 'lines+markers',
-        name: 'Xl',
+        name: 'Bisection',
         marker : {'color' : 'red'},
         line : {'color' : '#7695FF'},
     };
@@ -119,9 +110,9 @@ const Sample =()=>{
                         <Form.Label>Input f(x)</Form.Label>
                             <input type="text" id="equation" value={Equation} onChange={inputEquation} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
                             <Form.Label>Input XL</Form.Label>
-                            <input type="number" id="XL" onChange={inputXL} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
+                            <input type="number" id="XL" value={XL} onChange={inputXL} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
                             <Form.Label>Input XR</Form.Label>
-                            <input type="number" id="XR" onChange={inputXR} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
+                            <input type="number" id="XR" value={XR} onChange={inputXR} style={{width:"20%", margin:"0 auto"}} className="form-control border border-dark"></input>
                         </Form.Group>
                     <Button variant="dark" onClick={calculateRoot}>
                         Calculate
@@ -136,7 +127,7 @@ const Sample =()=>{
                 layout={{ title: 'Bisection Method Results',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
                 config={{scrollZoom: true}}
-
+                useResizeHandler={true}
             />
             <div class="flex justify-center">
                 {html}

@@ -133,6 +133,7 @@ const newton=()=> {
                 layout={{ title: 'Newton-Raphson Methods',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
                 config={{scrollZoom: true}}
+                useResizeHandler={true}
             />
             <div class="flex justify-center">
                 {html}
