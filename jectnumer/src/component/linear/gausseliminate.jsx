@@ -5,10 +5,10 @@ import { InlineMath,BlockMath } from 'react-katex';
 import Katex from 'katex/dist/katex.js';
 
 
-const Cramers = () => {
+const Gausseliminate = () => {
   const [solution,setsolution] = useState(null)
   const [matrixSize, setMatrixSize] = useState(3);
-  const [matAns,setmatAns] = useState([])
+  const [matAnsA,setmatAnsA] = useState([])
   const [ans, setans] = useState([]);
   const [matrixB, setMatrixB] = useState(Array(matrixSize).fill(''));
   const [detMatA,setdetMatA] = useState(0)
@@ -18,20 +18,46 @@ const Cramers = () => {
       .map(() => Array(matrixSize).fill(''))
   );
 
-  const calcramer=()=>{
-    let Ans = [];
-    let mat = []
+  const caleliminate=()=>{
+    let tempA = matrixA.map(row => [...row])
+    let tempB = matrixB.map(row => [...row])
+
     for(let i=0;i<matrixSize;i++){
-      let temparry = matrixA.map(row => [...row]);
-      for(let j=0;j<matrixSize;j++){
-        temparry[j][i] = matrixB[j];
-      }
-      mat.push(temparry)
-      ans.push(det(temparry)/detMatA);
+        const factor = tempA[i][i];
+        for(let check=i+1;check<matrixSize;check++){
+            const factornext = tempA[check][i];
+            for(let j=0;j<matrixSize;j++){
+                tempA[i][j] /= factor;
+                tempA[i][j] *= factornext;
+                
+                tempA[check][j] -= tempA[i][j];
+            }
+
+            tempB[i]/=factor;
+            tempB[i]*=factornext;
+
+            tempB[check]-=tempB[i]
+        }
     }
-    setans(Ans)
-    setmatAns(mat)
+
+    //cal ans
+    const Answer = [];
+    for(let i=matrixSize-1;i>=0;i--){
+        Answer[i] = tempB[i];
+
+        for(let j=i+1;j < matrixSize;j++){
+            Answer[i] -= tempA[i][j]*Answer[j];
+        }
+        
+        Answer[i] /= tempA[i][i];
+        console.log(Answer[i])
+    }
+    console.log(Answer)
+
+    setmatAnsA(tempA)
+    setans(Answer)
   }
+
 
   const onMatrixAInput = (e, i, j) => {
     const newMatrixA = [...matrixA];
@@ -61,13 +87,15 @@ const Cramers = () => {
 
     setdetMatA(det(matrixA));
 
-    calcramer();
+    caleliminate();
 
     setsolution(printanswer());
   };
 
+
   const handleMatrixSizeChange = (e) => {
     const newSize = Number(e.target.value);
+    
     let temp = []
     let differ = abs(newSize-matrixSize);
     matrixA.map((row,indexrow)=>{
@@ -106,15 +134,12 @@ const Cramers = () => {
     return (
       <div className="flex flex-col justify-center items-center h-full">
         <div className="text-center">
-          <InlineMath math={`\\text{Det(A)} = ${matrixToLatex(matrixA)} = ${detMatA}`} />
+            <InlineMath math={`\\text{Gauss Eliminaion} = ${matrixToLatex(matrixA)} \\xrightarrow{\\text{. . . . . }} ${matrixToLatex(matAnsA)}`} />
         </div>
-        <div className="flex flex-col text-left">
-          {matAns.map((item, indexitem) => (
-            <div className="mt-10">
-              <InlineMath math={`x_{${indexitem + 1}} = ${matrixToLatex(item)} = ${ans[indexitem]}`} />
-            </div>
-          ))}
-           
+        <div className='flex flex-col text-left mt-10'>
+            {ans.map((row,indexrow)=>(
+                <InlineMath math={`x_${indexrow+1} = ${row}`} />
+            ))}
         </div>
       </div>
 
@@ -230,4 +255,4 @@ const Cramers = () => {
   );
 };
 
-export default Cramers;
+export default Gausseliminate;

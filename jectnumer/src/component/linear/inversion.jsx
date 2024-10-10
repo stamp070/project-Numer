@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import {abs,det, log} from 'mathjs'
+import {abs,det, identity, log, multiply} from 'mathjs'
 import 'katex/dist/katex.min.css';
 import { InlineMath,BlockMath } from 'react-katex';
 import Katex from 'katex/dist/katex.js';
 
 
-const Cramers = () => {
+const Inversion = () => {
   const [solution,setsolution] = useState(null)
   const [matrixSize, setMatrixSize] = useState(3);
-  const [matAns,setmatAns] = useState([])
+  const [matAnsA,setmatAnsA] = useState([])
   const [ans, setans] = useState([]);
   const [matrixB, setMatrixB] = useState(Array(matrixSize).fill(''));
   const [detMatA,setdetMatA] = useState(0)
@@ -18,20 +18,51 @@ const Cramers = () => {
       .map(() => Array(matrixSize).fill(''))
   );
 
-  const calcramer=()=>{
-    let Ans = [];
-    let mat = []
+
+  const calinversion=()=>{
+    let tempA = matrixA.map(row => [...row])
+
+    let identitymattrix = identity(3).toArray()
+
+    // left
     for(let i=0;i<matrixSize;i++){
-      let temparry = matrixA.map(row => [...row]);
-      for(let j=0;j<matrixSize;j++){
-        temparry[j][i] = matrixB[j];
-      }
-      mat.push(temparry)
-      ans.push(det(temparry)/detMatA);
+        const factor = tempA[i][i];
+        for(let j=0;j<matrixSize;j++){
+            tempA[i][j] /= factor;
+
+            identitymattrix[i][j] /= factor;
+        }
+
+        for(let check=i+1;check<matrixSize;check++){
+            const factornext = tempA[check][i];
+            for(let j=0;j<matrixSize;j++){
+                tempA[check][j] -= tempA[i][j] * factornext;
+
+                identitymattrix[check][j] -= identitymattrix[i][j] * factornext
+            }
+        }
     }
-    setans(Ans)
-    setmatAns(mat)
+
+    //right
+    for(let i=matrixSize-1;i>=0;i--){
+        for(let check=i-1;check>=0;check--){
+            const factornext = tempA[check][i];
+            for(let j=0;j<matrixSize;j++){
+                tempA[check][j] -= tempA[i][j] * factornext;
+
+                identitymattrix[check][j] -= identitymattrix[i][j] * factornext
+            }
+        }
+    }
+    console.log(identitymattrix)
+
+    const ans = multiply(identitymattrix,matrixB) //inverse matrix(a) x matrix(b)
+    console.log(ans)
+
+    setmatAnsA(identitymattrix)
+    setans(ans)
   }
+
 
   const onMatrixAInput = (e, i, j) => {
     const newMatrixA = [...matrixA];
@@ -61,13 +92,15 @@ const Cramers = () => {
 
     setdetMatA(det(matrixA));
 
-    calcramer();
+    calinversion();
 
     setsolution(printanswer());
   };
 
+
   const handleMatrixSizeChange = (e) => {
     const newSize = Number(e.target.value);
+    
     let temp = []
     let differ = abs(newSize-matrixSize);
     matrixA.map((row,indexrow)=>{
@@ -93,8 +126,13 @@ const Cramers = () => {
     setMatrixA(temp);
     setMatrixSize(newSize);
   };
-
+  const formatnumber = (num)=>{
+    return num.toFixed(7,num);
+  }
   const matrixToLatex = (matrix) => {
+    console.log(matrix);
+    matrix = matrix.map(row => row.map(value => formatnumber(value)))
+    console.log(matrix);
     return `
       \\begin{vmatrix}
       ${matrix.map(row => row.join(' & ')).join(' \\\\ ')}
@@ -102,19 +140,24 @@ const Cramers = () => {
     `;
   };
 
+
   const printanswer =()=>{
     return (
       <div className="flex flex-col justify-center items-center h-full">
         <div className="text-center">
-          <InlineMath math={`\\text{Det(A)} = ${matrixToLatex(matrixA)} = ${detMatA}`} />
+            <InlineMath math={`A^{-1}B = ${matrixToLatex(matAnsA)} \\text{x} 
+                                \\begin{Bmatrix}
+                                ${matrixB.map(row => row).join(' \\\\ ')}
+                                \\end{Bmatrix} 
+                                = 
+                                \\begin{Bmatrix}
+                                ${ans.map((_,index) => `x_${index+1}`).join(' \\\\ ')}
+                                \\end{Bmatrix} `} />
         </div>
-        <div className="flex flex-col text-left">
-          {matAns.map((item, indexitem) => (
-            <div className="mt-10">
-              <InlineMath math={`x_{${indexitem + 1}} = ${matrixToLatex(item)} = ${ans[indexitem]}`} />
-            </div>
-          ))}
-           
+        <div className='flex flex-col text-left mt-10'>
+            {ans.map((row,indexrow)=>(
+                <InlineMath math={`x_${indexrow+1} = ${row}`} />
+            ))}
         </div>
       </div>
 
@@ -222,7 +265,7 @@ const Cramers = () => {
         </div>
       </div>
 
-      <div className='card bg-base-100 shadow-xl w-auto min-h-96 flex flex-1	'>
+      <div className='card bg-base-100 shadow-xl w-auto min-h-56 flex flex-1'>
         {solution}
       </div>
       
@@ -230,4 +273,4 @@ const Cramers = () => {
   );
 };
 
-export default Cramers;
+export default Inversion;

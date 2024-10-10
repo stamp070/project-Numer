@@ -1,12 +1,17 @@
 import React, { useState } from 'react'
-
+// root
 import Bisection from './component/root/bisection.jsx'
 import Graphical from './component/root/graphical.jsx'
 import Falsepo from './component/root/falseposition.jsx'
 import One from './component/root/onepoint.jsx'
 import Newton from './component/root/newton.jsx'
 import Secant from './component/root/secant.jsx'
+
+// linear
 import Cramers from './component/linear/cramer.jsx'
+import Eliminate from './component/linear/gausseliminate.jsx'
+import Jordan from './component/linear/gaussjordan.jsx'
+import Inversion from './component/linear/inversion.jsx'
 
 import Nav from './nav.jsx'
 
@@ -21,9 +26,9 @@ const Topics = {
   },
   "Linear Algebra Equation": {
     "Cramer's Rule" : <Cramers/>,
-    "Guass Elimination": null,
-    "Guass Jordan Elimination": null,
-    "Matrix Inversion": null,
+    "Guass Elimination": <Eliminate/>,
+    "Guass Jordan Elimination": <Jordan/>,
+    "Matrix Inversion": <Inversion/>,
     "LU Decomposition Methods": null,
     "Jacobi Iteration Methods": null,
     "Conjugate Gradient Methods": null
