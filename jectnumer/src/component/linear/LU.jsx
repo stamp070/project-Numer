@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import {abs,det, log} from 'mathjs'
+import {abs,det, identity, log, multiply} from 'mathjs'
 import 'katex/dist/katex.min.css';
 import { InlineMath,BlockMath } from 'react-katex';
 import Katex from 'katex/dist/katex.js';
 
 
-const Gaussjordan = () => {
+const Lu = () => {
   const [solution,setsolution] = useState(null)
   const [matrixSize, setMatrixSize] = useState(3);
-  const [matAnsA,setmatAnsA] = useState([])
-  const [ans, setans] = useState([]);
+  const [matL,setmatL] = useState(Array(matrixSize).fill(null).map(()=>Array(matrixSize).fill(0))) // set 0
+  const [matU,setmatU] = useState(Array(matrixSize).fill(null).map(()=>Array(matrixSize).fill(0))) // set 0
+  const [x, setx] = useState(Array(matrixSize).fill(0));
+  const [y, sety] = useState(Array(matrixSize).fill(0));
   const [matrixB, setMatrixB] = useState(Array(matrixSize).fill(''));
   const [matrixA, setMatrixA] = useState(
     Array(matrixSize)
@@ -17,43 +19,59 @@ const Gaussjordan = () => {
       .map(() => Array(matrixSize).fill(''))
   );
 
-  const caljordan=()=>{
-    let tempA = matrixA.map(row => [...row])
-    let tempB = [...matrixB]
+  const calu=()=>{
+    let mat = matrixA.map((row) => row.map((item)=>Number(item)));
+    console.log(mat)
 
-    // left
+    // cal LU
     for(let i=0;i<matrixSize;i++){
-        const factor = tempA[i][i];
-        tempB[i] /=factor;
-        for(let j=0;j<matrixSize;j++){
-            tempA[i][j] /= factor;
-        }
-
-        for(let check=i+1;check<matrixSize;check++){
-            const factornext = tempA[check][i];
-            for(let j=0;j<matrixSize;j++){
-                tempA[check][j] -= tempA[i][j] * factornext;
+        for(let k=i;k<matrixSize;k++){
+            let sum = 0;
+            for(let j=0;j<i;j++){
+                sum +=(matL[k][j] * matU[j][i]);
             }
-            tempB[check] -= tempB[i] * factornext;
+            matL[k][i] = mat[k][i] - sum;
+        }
+        for(let k = i;k<matrixSize;k++){
+            if(i==k){
+                matU[i][i] = 1;
+            }
+            else{
+                let sum = 0;
+                for(let j = 0;j<i;j++){
+                    sum += (matL[i][j] * matU[j][k]);
+                }
+                matU[i][k] = (mat[i][k] - sum)/matL[i][i];
+            }
         }
     }
 
-    //right
-    for(let i=matrixSize-1;i>=0;i--){
-        for(let check=i-1;check>=0;check--){
-            const factornext = tempA[check][i];
-            for(let j=0;j<matrixSize;j++){
-                tempA[check][j] -= tempA[i][j] * factornext;
-            }
-            tempB[check] -= tempB[i] * factornext;
-        }
-    }
-    console.log(tempB)
 
-    setmatAnsA(tempA)
-    setans(tempB)
+    // cal Y
+    let tempy = Array(matrixSize).fill(0)
+    for(let i = 0;i<matrixSize;i++){
+        let sum = 0;
+        for(let j=0;j<i;j++){
+            sum += matL[i][j] * tempy[j];
+        }
+        tempy[i] = (matrixB[i] - sum)/matL[i][i];
+    }
+    
+    //cal X
+    let tempx = Array(matrixSize).fill(0)
+    for(let i = matrixSize-1;i>=0;i--){
+        let sum = 0;
+        for(let j=i;j<matrixSize;j++){
+            sum += matU[i][j] * tempx[j];
+        }
+        tempx[i] = (tempy[i] - sum) / matU[i][i];
+    }
+    sety(tempy)
+    setx(tempx)
+    console.log(y)
+    console.log(x)
+
   }
-
 
   const onMatrixAInput = (e, i, j) => {
     const newMatrixA = [...matrixA];
@@ -81,7 +99,7 @@ const Gaussjordan = () => {
     console.log("Matrix A:", matrixA);
     console.log("Matrix B:", matrixB,"Type of B:"+typeof(matrixB[0]));
 
-    caljordan();
+    calu();
 
     setsolution(printanswer());
   };
@@ -115,7 +133,7 @@ const Gaussjordan = () => {
     setMatrixA(temp);
     setMatrixSize(newSize);
   };
-
+  
   const matrixToLatex = (matrix) => {
     return `
       \\begin{vmatrix}
@@ -124,20 +142,43 @@ const Gaussjordan = () => {
     `;
   };
 
+
   const printanswer =()=>{
     return (
       <div className="flex flex-col justify-center items-center h-full">
         <div className="text-center">
-            <InlineMath math={`\\text{Gauss Eliminaion} = ${matrixToLatex(matrixA)} \\xrightarrow{\\text{. . . . . }} ${matrixToLatex(matAnsA)}`} />
+            <InlineMath math={`[L]{Y} = ${matrixToLatex(matL)} \\text{x} 
+                                \\begin{Bmatrix}
+                                ${matrixB.map((_,index) => `y_${index+1}`).join(' \\\\ ')}
+                                \\end{Bmatrix} 
+                                = 
+                                \\begin{Bmatrix}
+                                ${matrixB.map((row) => row).join(' \\\\ ')}
+                                \\end{Bmatrix} `} />
         </div>
         <div className='flex flex-col text-left mt-10'>
-            {ans.map((row,indexrow)=>(
+            {y.map((row,indexrow)=>(
+                <InlineMath math={`y_${indexrow+1} = ${row}`} />
+            ))}
+        </div>
+
+
+        <div className="text-center mt-10">
+            <InlineMath math={`[U]{x} = ${matrixToLatex(matU)} \\text{x} 
+                                \\begin{Bmatrix}
+                                ${matrixB.map((_,index) => `x_${index+1}`).join(' \\\\ ')}
+                                \\end{Bmatrix} 
+                                = 
+                                \\begin{Bmatrix}
+                                ${y.map((row) => row).join(' \\\\ ')}
+                                \\end{Bmatrix} `} />
+        </div>
+        <div className='flex flex-col text-left mt-10'>
+            {x.map((row,indexrow)=>(
                 <InlineMath math={`x_${indexrow+1} = ${row}`} />
             ))}
         </div>
       </div>
-
-    
     )
   }
   return (
@@ -186,7 +227,6 @@ const Gaussjordan = () => {
                     onChange={(e) => onMatrixAInput(e, rowIndex, colIndex)}
                     className="h-20 w-20 text-center placeholder:text-gray-300 bg-white border rounded"
                     placeholder={`a${rowIndex + 1}${colIndex + 1}`}
-                    
                   />
                 ))
               )}
@@ -249,4 +289,4 @@ const Gaussjordan = () => {
   );
 };
 
-export default Gaussjordan;
+export default Lu;

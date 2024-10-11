@@ -12,6 +12,7 @@ import Cramers from './component/linear/cramer.jsx'
 import Eliminate from './component/linear/gausseliminate.jsx'
 import Jordan from './component/linear/gaussjordan.jsx'
 import Inversion from './component/linear/inversion.jsx'
+import Lu from './component/linear/LU.jsx'
 
 import Nav from './nav.jsx'
 
@@ -29,7 +30,7 @@ const Topics = {
     "Guass Elimination": <Eliminate/>,
     "Guass Jordan Elimination": <Jordan/>,
     "Matrix Inversion": <Inversion/>,
-    "LU Decomposition Methods": null,
+    "LU Decomposition Methods": <Lu/>,
     "Jacobi Iteration Methods": null,
     "Conjugate Gradient Methods": null
   },

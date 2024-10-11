@@ -11,7 +11,6 @@ const Inversion = () => {
   const [matAnsA,setmatAnsA] = useState([])
   const [ans, setans] = useState([]);
   const [matrixB, setMatrixB] = useState(Array(matrixSize).fill(''));
-  const [detMatA,setdetMatA] = useState(0)
   const [matrixA, setMatrixA] = useState(
     Array(matrixSize)
       .fill(null)
@@ -89,8 +88,6 @@ const Inversion = () => {
     console.log("Matrix Size:", matrixSize);
     console.log("Matrix A:", matrixA);
     console.log("Matrix B:", matrixB,"Type of B:"+typeof(matrixB[0]));
-
-    setdetMatA(det(matrixA));
 
     calinversion();
 
