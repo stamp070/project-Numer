@@ -2,12 +2,13 @@ import { useState } from 'react'
 import '../../App.css'
 
 import { Button, Container, Form, Table } from "react-bootstrap";
-import { evaluate,derivative } from 'mathjs';
+import { evaluate,derivative,max, min } from 'mathjs';
 import Plot from 'react-plotly.js'
 
 
 const newton=()=> {
     const [data, setData] = useState([]);
+    const [datagraph, setdatagraph] = useState([]);
     const [html, setHtml] = useState(null);
     const [Equation,setEquation] = useState("(x^3)-22")
     const [X,setX] = useState(0)
@@ -48,15 +49,24 @@ const newton=()=> {
         let iter = 0;
         const MAX = 100;
         const e = 0.00001;
-        const newData = []; 
+        const newData = [];
+        const graphData = [];
         
         xold = x*10;
         do{
             iter++;
             newData.push({ iteration: iter, x: x, y: evaluate(Equation, { x: x }) });
+           
+            graphData.push({ x: x, y: evaluate(Equation, { x: x }) });
             
             x = x - evaluate(Equation,{ x:x })/derivative(Equation, 'x').evaluate({ x: x });
             
+            let obj = {
+                x: x,
+                y: 0
+            }
+            graphData.push(obj);
+
             ea = error(x, xold);
 
             xold = x;
@@ -65,6 +75,7 @@ const newton=()=> {
         
         setData(newData);
         setXans(x);
+        setdatagraph(graphData);
     };
 
     const inputEquation = (event) =>{
@@ -78,30 +89,36 @@ const newton=()=> {
 
     const calculateRoot = () =>{
         const x = parseFloat(X)
+
         Calnewton(x);
+
         initialFunc();
 
         setHtml(print());   
     }
     const initialFunc = () => {
         let data = [];
-        const end = parseFloat(X) + 10; 
+        let Max = max(datagraph.map((item)=>item.x));
+        let Min = min(datagraph.map((item)=>item.x));
+        let x = Number(X);
     
-        for (let i = parseFloat(X); i <= end; i += 0.01) {
+        for (let i = Min-x; i <= Max+x; i += 0.01) {
             data.push({ x: i, y: evaluate(Equation, { x: i }) });
         }
         
         setfuncXY(data); 
     };
+
     const plotNewton = {
-        x: data.map(item => item.x),
-        y: data.map(item => item.y),
+        x: datagraph.map(item => item.x),
+        y: datagraph.map(item => item.y),
         type: 'scatter',
         mode: 'lines+markers',
         name: 'Newton',
         marker : {'color' : 'red'},
         line : {'color' : '#7695FF'}
     };
+    
     const plotFx = {
         x: funcXY.map(item => item.x),
         y: funcXY.map(item => item.y),

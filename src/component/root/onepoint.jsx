@@ -2,14 +2,15 @@ import { useState } from 'react'
 import '../../App.css'
 
 import { Button, Container, Form, Table } from "react-bootstrap";
-import { evaluate } from 'mathjs';
+import { evaluate,max,min } from 'mathjs';
 import Plot from 'react-plotly.js'
 
 
 const onepoint=()=> {
     const [data, setData] = useState([]);
+    const [datagraph, setdatagraph] = useState([]);
     const [html, setHtml] = useState(null);
-    const [Equation,setEquation] = useState("1/2*(7/x+x)");
+    const [Equation,setEquation] = useState("cos(x)");
     const [X,setX] = useState(0);
     const [Xans,setXans] = useState(0);
 
@@ -36,7 +37,6 @@ const onepoint=()=> {
                     </tbody>
                 </Table>
             </Container>
-           
         );
     }
 
@@ -47,21 +47,33 @@ const onepoint=()=> {
         let iter = 0;
         const MAX = 100;
         const e = 0.00001;
-        const newData = []; 
+        const newData = [];
+        const graphData = [];
         
         do{
             iter++;
             
             newData.push({ iteration: iter, x: x,y: evaluate(Equation, { x: x })});
             
+            let obj ={
+                x: x,
+                y: x
+            }
+
+            graphData.push({x: x,y: evaluate(Equation, { x: x })})
+            graphData.push(obj)
+
             x = evaluate(Equation, { x : x });
             ea = error(x, xold);
 
             xold = x;
             
         }while(ea > e && iter < MAX);
-        
+
+        console.log(graphData)
+
         setData(newData);
+        setdatagraph(graphData)
         setXans(x);
     };
 
@@ -76,6 +88,7 @@ const onepoint=()=> {
     const calculateRoot = () =>{
         const x = parseFloat(X)
         Calonepoint(x);
+
         initialFunc();
         
         setHtml(print());   
@@ -83,18 +96,21 @@ const onepoint=()=> {
 
     const initialFunc = () => {
         let data = [];
-        const end = parseFloat(X) + 10; 
-    
-        for (let i = parseFloat(X); i <= end; i += 0.01) {
+
+        let Max = max(datagraph.map((item)=>item.x));
+        let Min = min(datagraph.map((item)=>item.x));
+        let x = Number(X);
+
+        for (let i = Min-x; i <= Max+x; i += 0.01) {
             data.push({ x: i, y: evaluate(Equation, { x: i }) });
         }
-        
+        console.log(Max,X)
         setfuncXY(data); 
     };
 
     const plotOnePoint = {
-        x: data.map(item => item.x),
-        y: data.map(item => item.y),
+        x: datagraph.map(item => item.x),
+        y: datagraph.map(item => item.y),
         type: 'scatter',
         mode: 'lines+markers',
         name: 'One-Point',

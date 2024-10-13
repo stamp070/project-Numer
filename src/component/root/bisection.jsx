@@ -2,12 +2,13 @@ import { useState } from 'react'
 import '../../App.css'
 
 import { Button, Container, Form, Table } from "react-bootstrap";
-import { evaluate } from 'mathjs'
+import { evaluate,max,min } from 'mathjs'
 import Plot from 'react-plotly.js'
 
 
 const Sample =()=>{
     const [data, setData] = useState([]);
+    const [funcXY, setfuncXY] = useState([]);
     const [html, setHtml] = useState(null);
     const [Equation,setEquation] = useState("(x^4)-13")
     const [X,setX] = useState(0)
@@ -91,17 +92,39 @@ const Sample =()=>{
         const xrnum = parseFloat(XR)
         Calbisection(xlnum,xrnum);
         
+        initialFunc();
+
         setHtml(print());   
     }
+
+    const initialFunc = () => {
+        let Max = max(data.map((item)=>item.Xm));
+        let Min = min(data.map((item)=>item.Xm));
+        for (let i = Min-2; i <= Max+2; i += 0.01) {
+            data.push({ x: i, y: evaluate(Equation, { x: i }) });
+        }
+        
+        setfuncXY(data); 
+    };
+
     const plotData = {
         x: data.map(item => item.Xm),
         y: data.map(item => item.y),
         type: 'scatter',
-        mode: 'lines+markers',
+        mode: 'markers',
         name: 'Bisection',
         marker : {'color' : 'red'},
         line : {'color' : '#7695FF'},
     };
+
+    const plotFx = {
+        x: funcXY.map(item => item.x),
+        y: funcXY.map(item => item.y),
+        type: 'scatter',
+        name: 'f(x)',
+        mode: 'line',
+        line : {'color' : '#72BF78'}
+    }
 
     return (
             <Container>
@@ -123,7 +146,7 @@ const Sample =()=>{
                 <Container>
             </Container>
             <Plot
-                data={[plotData]}
+                data={[plotData,plotFx]}
                 layout={{ title: 'Bisection Method Results',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
                 config={{scrollZoom: true}}

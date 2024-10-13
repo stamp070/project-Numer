@@ -1,78 +1,79 @@
 import React, { useState } from 'react';
-import {abs,det, identity, log, multiply} from 'mathjs'
+import {abs,max} from 'mathjs'
 import 'katex/dist/katex.min.css';
 import { InlineMath,BlockMath } from 'react-katex';
 import Katex from 'katex/dist/katex.js';
 
+import '../../App.css';
 
-const Inversion = () => {
+const jacobi = () => {
   const [solution,setsolution] = useState(null)
   const [matrixSize, setMatrixSize] = useState(3);
-  const [matAnsA,setmatAnsA] = useState([])
-  const [ans, setans] = useState([]);
+  const [err,seterr] = useState(0.000001);
+  const [answer,setanswer] = useState();
   const [matrixB, setMatrixB] = useState(Array(matrixSize).fill(''));
   const [matrixA, setMatrixA] = useState(
-    Array(matrixSize)
+      Array(matrixSize)
       .fill(null)
-      .map(() => Array(matrixSize).fill(''))
-  );
+      .map(() => Array(matrixSize).fill('')));
+  
 
+  const error =(xold, xnew)=> Math.abs((xnew-xold)/xnew);
+  const caljacobi=()=>{
+      let iter = 0;
+      let MAX = 100;
+      let ans = new Array(matrixSize).fill(0);
+      let newAns = new Array(matrixSize).fill(0);
 
-  const calinversion=()=>{
-    let tempA = matrixA.map(row => [...row])
+      let A = matrixA.map((item)=>[...item]);
+      let B = [...matrixB];
 
-    let identitymattrix = identity(3).toArray()
+      let maxerr
 
-    // left
-    for(let i=0;i<matrixSize;i++){
-        const factor = tempA[i][i];
-        for(let j=0;j<matrixSize;j++){
-            tempA[i][j] /= factor;
+      let obj=[];
+      do{
+          for(let i=0;i<matrixSize;i++){
+              let sum = 0;
+              for(let j=0;j<matrixSize;j++){
+                  if(i!=j){
+                      sum += A[i][j] * ans[j];
+                  }
+              }
+              newAns[i] = (B[i] - sum)/A[i][i];
+          }
+          maxerr=0;
+          for(let i=0;i<matrixSize;i++){
+              const ea = error(ans[i], newAns[i]);
+              maxerr = max(ea,maxerr);
+          }
+          console.log(maxerr)
 
-            identitymattrix[i][j] /= factor;
-        }
+          obj.push({i:iter,ans:ans,err:maxerr})
 
-        for(let check=i+1;check<matrixSize;check++){
-            const factornext = tempA[check][i];
-            for(let j=0;j<matrixSize;j++){
-                tempA[check][j] -= tempA[i][j] * factornext;
+          ans = [...newAns];
 
-                identitymattrix[check][j] -= identitymattrix[i][j] * factornext
-            }
-        }
-    }
+          iter++;
+      }while(iter<=MAX && maxerr>=err)
 
-    //right
-    for(let i=matrixSize-1;i>=0;i--){
-        for(let check=i-1;check>=0;check--){
-            const factornext = tempA[check][i];
-            for(let j=0;j<matrixSize;j++){
-                tempA[check][j] -= tempA[i][j] * factornext;
+      console.log(obj)
 
-                identitymattrix[check][j] -= identitymattrix[i][j] * factornext
-            }
-        }
-    }
-    console.log(identitymattrix)
-
-    const ans = multiply(identitymattrix,matrixB) //inverse matrix(a) x matrix(b)
-    console.log(ans)
-
-    setmatAnsA(identitymattrix)
-    setans(ans)
+      setanswer(obj)
   }
 
-
   const onMatrixAInput = (e, i, j) => {
-    const newMatrixA = [...matrixA];
-    newMatrixA[i][j] = e.target.value;
-    setMatrixA(newMatrixA);
+      const newMatrixA = [...matrixA];
+      newMatrixA[i][j] = e.target.value;
+      setMatrixA(newMatrixA);
   };
 
   const onMatrixBInput = (e, i) => {
-    const newMatrixB = [...matrixB];
-    newMatrixB[i] = e.target.value;
-    setMatrixB(newMatrixB);
+      const newMatrixB = [...matrixB];
+      newMatrixB[i] = e.target.value;
+      setMatrixB(newMatrixB);
+  }
+
+  const onErrInput = (e)=>{
+    seterr(e.target.value)
   }
 
   const onClickReset = () => {
@@ -88,8 +89,9 @@ const Inversion = () => {
     console.log("Matrix Size:", matrixSize);
     console.log("Matrix A:", matrixA);
     console.log("Matrix B:", matrixB,"Type of B:"+typeof(matrixB[0]));
+    console.log(err)
 
-    calinversion();
+    caljacobi();
 
     setsolution(printanswer());
   };
@@ -97,7 +99,6 @@ const Inversion = () => {
 
   const handleMatrixSizeChange = (e) => {
     const newSize = Number(e.target.value);
-    
     let temp = []
     let differ = abs(newSize-matrixSize);
     matrixA.map((row,indexrow)=>{
@@ -122,46 +123,40 @@ const Inversion = () => {
     }
     setMatrixA(temp);
     setMatrixSize(newSize);
-  };
-  const formatnumber = (num)=>{
-    return num.toFixed(7,num);
-  }
-  const matrixToLatex = (matrix) => {
-    console.log(matrix);
-    matrix = matrix.map(row => row.map(value => formatnumber(value)))
-    console.log(matrix);
-    return `
-      \\begin{vmatrix}
-      ${matrix.map(row => row.join(' & ')).join(' \\\\ ')}
-      \\end{vmatrix}
-    `;
-  };
-
-
+    };
   const printanswer =()=>{
     return (
-      <div className="flex flex-col justify-center items-center h-full">
-        <div className="text-center">
-            <InlineMath math={`A^{-1}B = ${matrixToLatex(matAnsA)} \\text{x} 
-                                \\begin{Bmatrix}
-                                ${matrixB.map(row => row).join(' \\\\ ')}
-                                \\end{Bmatrix} 
-                                = 
-                                \\begin{Bmatrix}
-                                ${ans.map((_,index) => `x_${index+1}`).join(' \\\\ ')}
-                                \\end{Bmatrix} `} />
+      <div className='flex flex-col'>
+        <div className='flex-row mx-auto'>
+          <table>
+            <thead className='text-left'>
+                <tr>
+                  <th className='w-5'><InlineMath math="Iter"/></th>
+                  <th><InlineMath math="x_k"/></th>
+                  <th><InlineMath math="\varepsilon"/></th>
+                </tr>
+            </thead>
+            <tbody className='mx-auto divide-y divide-slate-200'>
+                {answer.map((element, index)=>{
+                    return  (
+                    <>
+                      <tr key={index} className=' stroke-slate-300 text-left '>
+                          <td className='p-3'>{element.i}</td>
+                          <td className='flex flex-col p-3'>{element.ans.map((item,index)=>{return <InlineMath math={`x_${index} = ${item}`}/>})}</td>
+                          <td className='p-3'>{element.err}</td>
+                      </tr>
+                    </>
+                  )
+                })}
+              </tbody>
+          </table>
         </div>
-        <div className='flex flex-col text-left mt-10'>
-            {ans.map((row,indexrow)=>(
-                <InlineMath math={`x_${indexrow+1} = ${row}`} />
-            ))}
-        </div>
+        
       </div>
 
-    
     )
   }
-  return (
+return (
     <>
       <div className="flex items-end gap-2 mx-auto w-fit">
         <div className="flex flex-col">
@@ -187,8 +182,18 @@ const Inversion = () => {
           Calculate
         </button>
       </div>
-
-      <div className='flex justify-center my-10 items-center gap-5'>
+      <div className='flex justify-center flex-col w-fit text-center mx-auto my-3'>
+        <InlineMath math="\varepsilon"/> 
+        <input 
+          type="number"
+          max="1"
+          value={err}
+          onChange={(e) => onErrInput(e)}
+          className='w-40 placeholder:text-gray-300 bg-white mt-2 border border-gray-300 p-2'
+        />
+      </div>
+      
+      <div className='flex justify-center my-8 items-center gap-5'>
         <div className="flex-none items-center gap-2 mt-2">
           <div className="text-center">
             <InlineMath math="[A]" />
@@ -207,7 +212,6 @@ const Inversion = () => {
                     onChange={(e) => onMatrixAInput(e, rowIndex, colIndex)}
                     className="h-20 w-20 text-center placeholder:text-gray-300 bg-white border rounded"
                     placeholder={`a${rowIndex + 1}${colIndex + 1}`}
-                    
                   />
                 ))
               )}
@@ -268,6 +272,5 @@ const Inversion = () => {
       
     </>
   );
-};
-
-export default Inversion;
+}
+export default jacobi

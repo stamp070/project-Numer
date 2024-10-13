@@ -90,7 +90,9 @@ const secant=()=> {
     const calculateRoot = () =>{
         const x0 = parseFloat(X0)
         const x1 = parseFloat(X1)
+        
         Calsecant(x0,x1);
+
         initialFunc();
         
         setHtml(print());   

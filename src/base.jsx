@@ -13,6 +13,8 @@ import Eliminate from './component/linear/gausseliminate.jsx'
 import Jordan from './component/linear/gaussjordan.jsx'
 import Inversion from './component/linear/inversion.jsx'
 import Lu from './component/linear/LU.jsx'
+import Jacobi from './component/linear/jacobi.jsx'
+import Seidel from './component/linear/gaussseidel.jsx'
 
 import Nav from './nav.jsx'
 
@@ -31,7 +33,8 @@ const Topics = {
     "Guass Jordan Elimination": <Jordan/>,
     "Matrix Inversion": <Inversion/>,
     "LU Decomposition Methods": <Lu/>,
-    "Jacobi Iteration Methods": null,
+    "Jacobi Iteration Methods": <Jacobi/>,
+    "Gauss-Seidel Iteration Methods": <Seidel/>,
     "Conjugate Gradient Methods": null
   },
   "Interpolation": {
@@ -63,8 +66,8 @@ function base() {
     <>
     <Nav/>
     <div className='flex flex-col min-h-screen w-9/12 mx-auto'>
-      <div className='flex gap-5 mx-auto my-14'>
-        <div className='relative group'>
+      <div className='flex gap-5 mx-auto my-14 '>
+        <div className='relative group mr-10'>
           <button id="TopicButton" onMouseEnter={() => setTopicOpen(topic ? topic:!topic)}
                                   onClick={() => setTopicOpen(!topicOpen)}
            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 " type="button">{topic} <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">

@@ -13,6 +13,7 @@ const graphical=()=> {
     const [X,setX] = useState(0)
     const [XStart,setXStart] = useState(0)
     const [XEnd,setXEnd] = useState(0)
+    const [funcXY,setfuncXY] = useState([]);
 
     const print = () =>{
         return(
@@ -43,7 +44,7 @@ const graphical=()=> {
     const checkDigitPlace =(num)=>{
         if (num === 0) return 1; 
         const digitPlace = floor(log10(abs(num))); 
-
+        
         return Math.pow(10, digitPlace);
     }
 
@@ -99,19 +100,38 @@ const graphical=()=> {
         const xstart = parseFloat(XStart)
         const xend = parseFloat(XEnd)
         Calgraphical(xstart,xend);
+
+        initialFunc();
         
         setHtml(print());   
     }
+
+    const initialFunc = () => {
+        let data = [];
+        for (let i = Number(XStart)-2; i <= Number(XEnd)+2; i += 0.01) {
+            data.push({ x: i, y: evaluate(Equation, { x: i }) });
+        }
+        setfuncXY(data); 
+    };
 
     const plotData = {
         x: data.map(item => item.x),
         y: data.map(item => item.y),
         type: 'scatter',
-        mode: 'lines+markers',
-        name: 'Xl',
+        mode: 'markers',
+        name: 'Bisection',
         marker : {'color' : 'red'},
-        line : {'color' : '#7695FF'}
+        line : {'color' : '#7695FF'},
     };
+
+    const plotFx = {
+        x: funcXY.map(item => item.x),
+        y: funcXY.map(item => item.y),
+        type: 'scatter',
+        name: 'f(x)',
+        mode: 'line',
+        line : {'color' : '#72BF78'}
+    }
 
     return(
         <Container>
@@ -133,7 +153,7 @@ const graphical=()=> {
                 <Container>
             </Container>
             <Plot
-                data={[plotData]}
+                data={[plotData,plotFx]}
                 layout={{ title: 'Graphical Methods',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
                 config={{scrollZoom: true}}

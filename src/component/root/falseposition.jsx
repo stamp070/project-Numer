@@ -2,18 +2,18 @@ import { useState } from 'react'
 import '../../App.css'
 
 import { Button, Container, Form, Table } from "react-bootstrap";
-import { evaluate } from 'mathjs';
+import { evaluate,max,min } from 'mathjs';
 import Plot from 'react-plotly.js'
 
 
 const falseposition=()=> {
     const [data, setData] = useState([]);
+    const [funcXY, setfuncXY] = useState([]);
     const [html, setHtml] = useState(null);
     const [Equation,setEquation] = useState("(x^2)-13")
     const [X,setX] = useState(0)
     const [XL,setXL] = useState(0)
     const [XR,setXR] = useState(0)
-    const [Y,setY] = useState(0)
 
     const print = () =>{
         data.shift();
@@ -32,7 +32,7 @@ const falseposition=()=> {
                             return  (
                             <tr key={index}>
                                 <td>{element.iteration}</td>
-                                <td>{element.Xm.toPrecision(7)}</td>
+                                <td>{element.Xm}</td>
                                 <td>{element.y.toPrecision(6)}</td>
                             </tr>)
                         })}
@@ -92,18 +92,39 @@ const falseposition=()=> {
         const xlnum = parseFloat(XL)
         const xrnum = parseFloat(XR)
         Calfalseposition(xlnum,xrnum);
+
+        initialFunc();
         
         setHtml(print());   
     }
+    const initialFunc = () => {
+        let Max = max(data.map((item)=>item.Xm));
+        let Min = min(data.map((item)=>item.Xm));
+        for (let i = Min-2; i <= Max+2; i += 0.01) {
+            data.push({ x: i, y: evaluate(Equation, { x: i }) });
+        }
+        
+        setfuncXY(data); 
+    };
     const plotData = {
         x: data.map(item => item.Xm),
         y: data.map(item => item.y),
         type: 'scatter',
-        mode: 'lines+markers',
+        mode: 'markers',
         name: 'Xl',
         marker : {'color' : 'red'},
         line : {'color' : '#7695FF'}
     };
+
+    const plotFx = {
+        x: funcXY.map(item => item.x),
+        y: funcXY.map(item => item.y),
+        type: 'scatter',
+        name: 'f(x)',
+        mode: 'line',
+        line : {'color' : '#72BF78'}
+    }
+
     return(
         <Container>
                 <Form >
@@ -124,7 +145,7 @@ const falseposition=()=> {
                 <Container>
             </Container>
             <Plot
-                data={[plotData]}
+                data={[plotData,plotFx]}
                 layout={{ title: 'False-position Methods',dragmode: 'pan'}}
                 style={{ width: "100%", height: "400px" }}
                 config={{scrollZoom: true}}
