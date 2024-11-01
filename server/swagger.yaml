@@ -1,0 +1,75 @@
+openapi: 3.0.0
+info:
+  title: Mathematical Operations API
+  description: API for handling various mathematical operations including root equations, linear algebra, and interpolation
+  version: 1.0.0
+
+servers:
+  - url: /api
+
+paths:
+  /load/rootequation/all/{limit}:
+    get:
+      summary: Load root equations
+      description: Load random equation from Database.
+      parameters:
+        - in: path
+          name: limit
+          schema:
+            type: integer
+            default: 1
+          required: false
+          description: Number of equations to retrieve
+      responses:
+        "200":
+          description: Equations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "pass"
+                  equations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        equation:
+                          type: string
+
+  /load/linearalgebra/all/{limit}:
+    get:
+      summary: Load linear algebra matrix
+      description: Retrieve matrix from the database
+      parameters:
+        - in: path
+          name: limit
+          schema:
+            type: integer
+            default: 1
+          required: false
+          description: Number of matrix pairs to retrieve
+      responses:
+        "200":
+          description: matrix retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "pass"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        matA:
+                          type: string
+                        matB:
+                          type: string
+components:
+  schemas: {}

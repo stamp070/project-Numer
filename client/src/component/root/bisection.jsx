@@ -135,15 +135,16 @@ const Sample =()=>{
 
     const random = () => {
         axios.get(
-          `${import.meta.env.VITE_server_ip}:${import.meta.env.VITE_server_port}/load/rootequation/all`,
+          `${import.meta.env.VITE_API_URL}/load/rootequation/all`,
           {
             headers: {
               'Content-Type': 'application/json',
             },
           }
         ).then(res => {
-          const eq = res.data.equations[0].equation;
-          setEquation(eq);
+            console.log(res.data);
+            const eq = res.data.equations[0].equation;
+            setEquation(eq);
         })
     }
 

@@ -135,7 +135,7 @@ const falseposition=()=> {
 
     const random = () => {
         axios.get(
-          `${import.meta.env.VITE_server_ip}:${import.meta.env.VITE_server_port}/load/rootequation/all`,
+          `${import.meta.env.VITE_API_URL}/load/rootequation/all`,
           {
             headers: {
               'Content-Type': 'application/json',

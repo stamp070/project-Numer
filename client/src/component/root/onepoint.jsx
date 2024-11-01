@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import '../../App.css'
+import  Alert  from "../alert"
 
 import { Button, Container, Form, Table } from "react-bootstrap";
 import { evaluate,max,min } from 'mathjs';
@@ -14,6 +15,8 @@ const onepoint=()=> {
     const [X,setX] = useState(1);
     const [Xans,setXans] = useState(0);
     const [Err,setErr] = useState(0.0001);
+
+    const [showAlert,setShowAlert] = useState(false);
 
     const [funcXY,setfuncXY] = useState([]);
 
@@ -41,25 +44,26 @@ const onepoint=()=> {
         );
     }
 
+    const handleAlert =()=>{
+        setShowAlert(true);
+    }
+
     const error =(xold, xnew)=> Math.abs((xnew-xold)/xnew)*100;
     const Calonepoint = (x ,err) => {
         console.log("data:",data)
         err = parseFloat(err);
         let xold=x*100, ea;
         let iter = 0;
-        const MAX = 100;
+        const MAX = 50;
         const newData = [];
         const graphData = [];
         
-        const TIMEOUT_DURATION = 4000; // 2 seconds
-        let timeoutReached = false;
-
-        // Start the timeout
-        const timeout = setTimeout(() => {
-            timeoutReached = true;
-            console.warn('Timeout reached! Stopping calculation.');
-        }, TIMEOUT_DURATION);
         do{
+            console.log("Iteration:", iter, "x:", x, "Error Approximation:", ea);
+            if(Math.abs(x) > 1e7){
+                handleAlert();
+                break;
+            }
             iter++;
             
             newData.push({ iteration: iter, x: x,y: evaluate(Equation, { x: x })});
@@ -77,18 +81,13 @@ const onepoint=()=> {
 
             xold = x;
 
-            if (timeoutReached) {
-                clearTimeout(timeout);
-                break; 
-            }
+            
         }while(ea > err && iter < MAX);
 
-        clearTimeout(timeout);
-
-        console.log("graphdata:",graphData)
+        console.log("graphdata:",graphData);
 
         setData(newData);
-        setdatagraph(graphData)
+        setdatagraph(graphData);
         setXans(x);
     };
 
@@ -114,19 +113,28 @@ const onepoint=()=> {
     }
 
     const initialFunc = () => {
-        let newdata = [];
-
-        let Max = max(data.map((item)=>item.x));
-        let Min = min(data.map((item)=>item.x));
-        let x = Number(X);
-
-        for (let i = Min-x; i <= Max+x; i += 0.01) {
-            newdata.push({ x: i, y: evaluate(Equation, { x: i }) });
+        const newdata = [];
+        const rangeLimit = 20; 
+        let Max = max(data.map((item) => item.x)) || 10;
+        let Min = min(data.map((item) => item.x)) || -10;
+        
+        Max = Math.min(Max, 10 + rangeLimit);
+        Min = Math.max(Min, -10 - rangeLimit);
+    
+        for (let i = Min - rangeLimit; i <= Max + rangeLimit; i += 0.1) {
+            const yValue = evaluate(Equation, { x: i });
+    
+            if (Math.abs(yValue) > 1e7) {
+                console.warn(`Value too large at x=${i}, y=${yValue}`);
+                continue;
+            }
+            
+            newdata.push({ x: i, y: yValue });
         }
-
-        console.log(Max,X)
-        setfuncXY(newdata); 
+    
+        setfuncXY(newdata);
     };
+    
 
     const plotOnePoint = {
         x: datagraph.map(item => item.x),
@@ -141,7 +149,7 @@ const onepoint=()=> {
     const plotFx = {
         x: funcXY.map(item => item.x),
         y: funcXY.map(item => item.y),
-        type: 'scatter',
+        type: 'line',
         name: 'f(x)',
         mode: 'line',
         line : {'color' : '#72BF78'}
@@ -149,7 +157,7 @@ const onepoint=()=> {
 
     const random = () => {
         axios.get(
-          `${import.meta.env.VITE_server_ip}:${import.meta.env.VITE_server_port}/load/rootequation/all`,
+          `${import.meta.env.VITE_API_URL}/load/rootequation/all`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -157,13 +165,13 @@ const onepoint=()=> {
           }
         ).then(res => {
           const eq = res.data.equations[0].equation;
-          if(eq!="3x-6")
-            setEquation(eq);
+          setEquation(eq);
         })
     }
 
     return(
         <Container>
+            {showAlert && <Alert message={"Divergence detected."} onClose={() => setShowAlert(false)} />}
                 <Form >
                     <Form.Group className="mb-3">
                         <Form.Label>Input f(x)</Form.Label>
@@ -205,6 +213,7 @@ const onepoint=()=> {
                 {html}
             </div>
             </Container>
+
     );
 };
 export default onepoint;

@@ -6,9 +6,14 @@ const cors = require("cors"); // cross origin resource อนุญาติใ�
 // const helmet = require("helmet");
 const rateLimit = require("express-rate-limit"); // กันคนยิงเว็บรัวๆ
 const timeout = require("express-timeout-handler").handler;
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yaml");
+const file = fs.readFileSync("./swagger.yaml", "utf-8");
+const swaggerDocument = YAML.parse(file);
 
 const app = express();
-const port = process.env.PORT || 3000;
+// const port = process.env.PORT || 3000;
+console.log(process.env.MONGODB_URI);
 const { start, disconnect } = require("./mongo");
 
 start();
@@ -21,8 +26,14 @@ app.use(
     // credentials: true,
   })
 );
+
+// swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // app.use(helmet());
 app.use(express.json()); // เพื่ออ่านไฟล์ json / body ที่เป็น json
+
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   timeout({
@@ -59,26 +70,32 @@ app.use((req, res, next) => {
 }); // middle ware
 
 app.get("/", (req, res) => {
-  return res.status(200).send("Hello World");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+app.get("/api/test", (req, res) => {
+  res.send(res.status(200).json({ status: "pass api test" }));
+});
+
+// เพิ่ม prefix "/api" สำหรับ routes ทั้งหมด
 const routesPath = path.join(__dirname, "middleware");
 fs.readdirSync(routesPath).forEach((folder) => {
   const routeSubPath = path.join(routesPath, folder);
   fs.readdirSync(routeSubPath).forEach((file) => {
     if (file.endsWith(".js")) {
       const route = require(path.join(routeSubPath, file));
-      app.use(route);
+      app.use("/api", route); // เพิ่ม prefix '/api'
     }
   });
 });
 
+// ปรับ 404 route
 app.get("*", (req, res) => {
-  return res.status(404).send("Not Found");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(port, () => {
-  console.log("Server running...");
+app.listen(10000, "0.0.0.0", () => {
+  console.log("Server is running on port 10000");
 });
 
-disconnect();
+// disconnect();
