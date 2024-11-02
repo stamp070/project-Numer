@@ -3,6 +3,8 @@ import {abs,max} from 'mathjs'
 import 'katex/dist/katex.min.css';
 import { InlineMath,BlockMath } from 'react-katex';
 import Katex from 'katex/dist/katex.js';
+import axios from 'axios';
+
 
 import '../../App.css';
 
@@ -156,6 +158,24 @@ const seidel = () => {
 
     )
   }
+
+  const random = () => {
+    axios.get(
+      `${import.meta.env.VITE_API_URL}/load/linearalgebra/all`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    ).then(res => {
+      setMatrixSize(res.data.data[0].matA.length)
+      setMatrixA(res.data.data[0].matA)
+      setMatrixB(res.data.data[0].matB)
+    }).catch(err => {
+      console.log('Error:', err.message);
+    })
+  }
+
 return (
     <>
       <div className="flex items-end gap-2 mx-auto w-fit">
@@ -180,6 +200,13 @@ return (
           onClick={onClickCalculate}
         >
           Calculate
+        </button>
+        <button
+            type="button"
+            onClick={() => random()}
+            class="ml-3 text-white bg-blue-600 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5"
+        >
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"><path fill="currentColor" d="M440.88 129.37L288.16 40.62a64.14 64.14 0 0 0-64.33 0L71.12 129.37a4 4 0 0 0 0 6.9L254 243.85a4 4 0 0 0 4.06 0L440.9 136.27a4 4 0 0 0-.02-6.9M256 152c-13.25 0-24-7.16-24-16s10.75-16 24-16s24 7.16 24 16s-10.75 16-24 16m-18 118.81L54 163.48a4 4 0 0 0-6 3.46v173.92a48 48 0 0 0 23.84 41.39L234 479.48a4 4 0 0 0 6-3.46V274.27a4 4 0 0 0-2-3.46M96 368c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m96-32c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m266-172.49L274 271.56a4 4 0 0 0-2 3.45V476a4 4 0 0 0 6 3.46l162.15-97.23A48 48 0 0 0 464 340.86V167a4 4 0 0 0-6-3.49M320 424c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m0-88c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m96 32c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24m0-88c-8.84 0-16-10.75-16-24s7.16-24 16-24s16 10.75 16 24s-7.16 24-16 24"/></svg>
         </button>
       </div>
       <div className='flex justify-center flex-col w-fit text-center mx-auto my-3'>
